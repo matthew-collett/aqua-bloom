@@ -3,11 +3,11 @@ import './App.css';
 
 import { useState } from 'react'
 
-import ActionButton from './components/ActionButton';
+import axios from 'axios';
+
 import LoadingSpinner from './components/LoadingSpinner';
 
 import DownloadIcon from '@mui/icons-material/Download';
-import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -19,6 +19,8 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+const baseUrl = "http://localhost:5000/api"
+
 function App() {
   let fileReader
 
@@ -27,8 +29,8 @@ function App() {
   const [locVsProbChart, setlocVsProbChart] = useState({})
   const [existVsNot, setExistVsNot] = useState({})
 
-  const ProcessData = (e) => {
-    const data = fileReader.result;
+  const ProcessData = (data) => {
+    // const data = fileReader.result;
     const dataObj = JSON.parse(data);
 
     let locVsProbChartData = [];
@@ -74,61 +76,75 @@ function App() {
 
   const DownloadData = (file) => {
     setIsLoading(true)
-    fileReader = new FileReader();
-    fileReader.onloadend = ProcessData;
-    fileReader.readAsText(file);
+    // fileReader = new FileReader();
+    // fileReader.onloadend = ProcessData;
+    // fileReader.readAsText(file);
+    let formData = new FormData();
+    formData.append("file", file);
+
+    axios
+      .post("http://localhost:5000/api/upload", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      .then((resp) => {
+        if (resp.status === 200) {
+          ProcessData(resp.data)
+        }
+      })
   }
 
   return (
     <div className='App'>
-        {(() => {
-          if (isLoading) {
+      {(() => {
+        if (isLoading) {
+          return (
+            <LoadingSpinner />
+          )
+        }
+        else {
+          if (!showCharts) {
             return (
-              <LoadingSpinner />
+              <header className="App-header">
+                <img src={icon} className="App-logo" alt="Aqua-Bloom Logo" />
+                <h3>Aqua-Bloom</h3>
+                <FormControl variant="standard">
+                  <InputLabel htmlFor="data-file-input">
+                    Upload data as CSV file
+                  </InputLabel>
+                  <Input
+                    id="data-file-input"
+                    type="file"
+                    className="input-file"
+                    accept=".csv"
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <DownloadIcon style={{ color: '#38b6ff' }} sx={{ fontSize: 25 }} />
+                      </InputAdornment>
+                    }
+                    onChange={e => DownloadData(e.target.files[0])}
+                  />
+                </FormControl>
+              </header>
             )
           }
           else {
-            if (!showCharts) {
-              return (
-                <header className="App-header">
-                  <img src={icon} className="App-logo" alt="Aqua-Bloom Logo" />
-                  <h3>Aqua-Bloom</h3>
-                  <FormControl variant="standard">
-                    <InputLabel htmlFor="data-file-input">
-                      Upload data as JSON file
-                    </InputLabel>
-                    <Input
-                      id="data-file-input"
-                      type="file"
-                      className="input-file"
-                      accept=".json"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <DownloadIcon style={{ color: '#38b6ff' }} sx={{ fontSize: 25 }} />
-                        </InputAdornment>
-                      }
-                      onChange={e => DownloadData(e.target.files[0])}
-                    />
-                  </FormControl>
-                </header>
-              )
-            }
-            else {
-              return (
-                <Container>
-                  <Row>
-                    <Col>
-                      <CanvasJSReact.CanvasJSChart options={existVsNot} />
-                    </Col>
-                    <Col>
-                      <CanvasJSReact.CanvasJSChart options={locVsProbChart} />
-                    </Col>
-                  </Row>
-                </Container>
-              )
-            }
+            return (
+              <Container>
+                <Row>
+                  <Col>
+                    <CanvasJSReact.CanvasJSChart options={existVsNot} />
+                  </Col>
+                  <Col>
+                    <CanvasJSReact.CanvasJSChart options={locVsProbChart} />
+                  </Col>
+                </Row>
+              </Container>
+            )
           }
-        })()}
+        }
+      })()}
     </div>
   )
 }

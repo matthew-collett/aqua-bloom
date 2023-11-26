@@ -71,6 +71,6 @@ def calculateProbability(file_path):
     with open('final_json.json', 'w') as f:
         json.dump(json_object, f)
 
-    print(json_string)
+    return json_string
 
 # json_obj = convert_json(newdf)

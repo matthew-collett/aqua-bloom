@@ -21,8 +21,8 @@ def upload():
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
         try:
-            calculateProbability(filepath)
-            return jsonify(message="File uploaded and processed"), 200
+            json_str = calculateProbability(filepath)
+            return jsonify(json_str), 200
         except Exception as e:
             return jsonify(message="Error processing file", error=str(e)), 500
         finally:
