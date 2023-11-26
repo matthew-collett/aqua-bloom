@@ -25,7 +25,7 @@ The following technologies and resources are used in this project
    $ cd aqua-bloom-app
    $ npm start
    ```
-5. Go to http://127.0.0.1:5000
+5. Go to http://localhost:3000
    
    
    
