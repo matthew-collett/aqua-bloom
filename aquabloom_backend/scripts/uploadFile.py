@@ -59,7 +59,8 @@ def calculateProbability(file_path):
 
     df.rename(columns=new_columns, inplace=True)
     df.fillna('Inconclusive', inplace=True)
-    # print(df)
+    df.to_csv('output_file.csv', index=False)
+
 
     final_dict = df.to_dict(orient='records')
 
