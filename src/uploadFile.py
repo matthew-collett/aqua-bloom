@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.special import expit
 import sys
+import json
 
 def read_file():
     if len(sys.argv) != 2:
@@ -66,26 +67,19 @@ def calculateProbability():
     df.fillna('Inconclusive', inplace=True)
     # print(df)
 
-    columnDefs =[
-        {"field": "ID"}, 
-        {"field": "Target"},
-        {"field": "Test1"},
-        {"field": "Test2"},
-        {"field": "Test3"},
-        {"field": "Test4"},
-        {"field": "Test5"},
-        {"field": "Test6"},
-        {"field": "Test7"},
-        {"field": "Probability"}]
+    final_dict = df.to_dict(orient='records')
 
-    rowData = df.to_dict(orient='records')
+    json_string = json.dumps(final_dict)
 
-    # print(rowData)
+    json_object = json.loads(json_string)
 
-    final_dict = {'columnDefs': columnDefs,
-                'rowData': rowData}
 
-    print(final_dict)
-    return(final_dict)
+    with open('final_json.json', 'w') as f:
+        json.dump(json_object, f)
 
-calculateProbability()
+    # print(json_string)
+    return(json_object)
+
+newdf = calculateProbability()
+
+# json_obj = convert_json(newdf)
