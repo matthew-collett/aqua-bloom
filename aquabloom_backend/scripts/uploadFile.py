@@ -5,16 +5,10 @@ from scipy.special import expit
 import sys
 import json
 
-def read_file():
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <file_path>")
-        sys.exit(1)
 
-    file_path = sys.argv[1]
-
+def calculateProbability(file_path):
     try:
         df = pd.read_csv(file_path)
-        return df
     except FileNotFoundError:
         print(f"Error: File '{file_path}' not found.")
         sys.exit(1)
@@ -22,29 +16,29 @@ def read_file():
         print(f"Error: An unexpected error occurred - {e}")
         sys.exit(1)
 
-
-def calculateProbability():
-
-    df = read_file()
-
-    df['Average'] = 0 
-    df['Exists'] = 0 
+    df['Average'] = 0
+    df['Exists'] = 0
     df['Probability'] = 0
 
+
     for index, row in df.iterrows():
+        # Convert all values to numeric, coerce errors to NaN
+        row_vals = pd.to_numeric(df.iloc[index, 2:8], errors='coerce').dropna()
 
-        row_vals = df.iloc[index, 2:8].dropna()
+        if not row_vals.empty:
+            average = row_vals.mean()
+            df.at[index, 'Average'] = average
 
-        average = row_vals.mean()
-        df.at[index, 'Average'] = average
+            threshold = pd.to_numeric(df.iloc[index, 1], errors='coerce')
+            if pd.notnull(threshold):
+                probability = expit(10 * (average - threshold))
+                df.at[index, 'Probability'] = probability
+                df.at[index, 'Exists'] = int(probability > 0.5)
+            else:
+                # Handle the case where threshold is not a number
+                # e.g., log an error, set a default value, etc.
+                pass
 
-        threshold = df.iloc[index, 1]
-
-        probability = expit(10 * (average - threshold))
-        df.at[index, 'Probability'] = probability
-
-        if(probability > 0.5):
-            df.at[index, 'Exists'] = 1
 
     # print("Threshhold: " + str(threshold) + " Avg: " + str(average) + " Prob: " + str(probability))
 
@@ -73,13 +67,9 @@ def calculateProbability():
 
     json_object = json.loads(json_string)
 
-
     with open('final_json.json', 'w') as f:
         json.dump(json_object, f)
 
-    # print(json_string)
-    return(json_object)
-
-newdf = calculateProbability()
+    print(json_string)
 
 # json_obj = convert_json(newdf)
