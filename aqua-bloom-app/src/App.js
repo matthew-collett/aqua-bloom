@@ -15,6 +15,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import CanvasJSReact from '@canvasjs/react-charts';
 
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 function App() {
   let fileReader
@@ -22,24 +25,46 @@ function App() {
   const [showCharts, setShowCharts] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [locVsProbChart, setlocVsProbChart] = useState({})
+  const [existVsNot, setExistVsNot] = useState({})
 
   const ProcessData = (e) => {
     const data = fileReader.result;
     const dataObj = JSON.parse(data);
 
-    let arr = [];
-    for (let entry in dataObj)
-    {
-      arr.push({ label: entry.ID,  y: (entry.Probability * 10)  })
+    let locVsProbChartData = [];
+    let nExist = 0;
+    for (var i = 0; i < dataObj.length; i++) {
+      var entry = dataObj[i]
+
+      locVsProbChartData.push({ label: entry['ID'], y: entry['Probability'] })
+
+      if (entry['Exists'] === 1) {
+        nExist++;
+      }
     }
-    
+
     setlocVsProbChart({
       title: {
-        text: "Location ID vs. Probability"
+        text: "Location ID vs. Blue-Green Algae Growth Probability"
       },
       data: [{
         type: "column",
-        dataPoints: arr,
+        dataPoints: locVsProbChartData,
+      }]
+    })
+
+    setExistVsNot({
+      title: {
+        text: "Existance of Blue-Green Algae"
+      },
+      data: [{
+        type: "pie",
+        yValueFormatString: "##0",
+        indexLabel: "{label} {y}",
+        dataPoints: [
+          { y: nExist, label: "Exist" },
+          { y: dataObj.length - nExist, label: "Not Exist" }
+        ]
       }]
     })
 
@@ -56,7 +81,6 @@ function App() {
 
   return (
     <div className='App'>
-      <header className="App-header">
         {(() => {
           if (isLoading) {
             return (
@@ -66,7 +90,7 @@ function App() {
           else {
             if (!showCharts) {
               return (
-                <div>
+                <header className="App-header">
                   <img src={icon} className="App-logo" alt="Aqua-Bloom Logo" />
                   <h3>Aqua-Bloom</h3>
                   <FormControl variant="standard">
@@ -86,18 +110,25 @@ function App() {
                       onChange={e => DownloadData(e.target.files[0])}
                     />
                   </FormControl>
-                </div>
+                </header>
               )
             }
             else {
               return (
-                <CanvasJSReact.CanvasJSChart options={locVsProbChart} />
-
+                <Container>
+                  <Row>
+                    <Col>
+                      <CanvasJSReact.CanvasJSChart options={existVsNot} />
+                    </Col>
+                    <Col>
+                      <CanvasJSReact.CanvasJSChart options={locVsProbChart} />
+                    </Col>
+                  </Row>
+                </Container>
               )
             }
           }
         })()}
-      </header>
     </div>
   )
 }
