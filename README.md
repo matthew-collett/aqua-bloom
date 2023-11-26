@@ -22,7 +22,7 @@ The following technologies and resources are used in this project
    ```
 4. Run the front end
    ```
-   $ cd aquabloom-frontend
+   $ cd aqua-bloom-app
    $ npm start
    ```
 5. Go to http://127.0.0.1:5000
