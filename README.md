@@ -1,8 +1,9 @@
-# AquaBloom Analytics
+# AECQ 2023 — Atlantic Engineering Competition
 
 ![AquaBloom](https://github.com/matthew-collett/aqua-bloom/assets/97645707/7785b03e-6b09-4296-8f1f-d0c625cf6d5b)
 
-# AquaBloom Analytics is at the forefront of environmental analytics, specializing in the prediction and real-time monitoring of blue-green algae blooms in water bodies.
+# AquaBloom Analytics 
+AquaBloom Analytics is at the forefront of environmental analytics, specializing in the prediction and real-time monitoring of blue-green algae blooms in water bodies.
 
 # Tech Stack
 The following technologies and resources are used in this project
